@@ -9,6 +9,8 @@ async function findMarket(query) {
         const response = await axios.get('https://clob.polymarket.com/markets');
         const markets = response.data;
 
+        console.log("Response data:", markets); // Log the response data
+
         if (!Array.isArray(markets)) {
             throw new TypeError("Expected 'markets' to be an array");
         }
