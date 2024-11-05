@@ -1,4 +1,3 @@
-// Import the findMarket function from findMarket.js
 const findMarket = require('./findMarket');
 
 // Example queries
