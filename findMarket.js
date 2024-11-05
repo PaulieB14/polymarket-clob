@@ -9,6 +9,10 @@ async function findMarket(query) {
         const response = await axios.get('https://clob.polymarket.com/markets');
         const markets = response.data;
 
+        if (!Array.isArray(markets)) {
+            throw new TypeError("Expected 'markets' to be an array");
+        }
+
         // Determine if the query is likely a TokenID by its format
         const isTokenID = query.startsWith('0x') && query.length === 66;
 
@@ -30,6 +34,3 @@ async function findMarket(query) {
         console.error("Error fetching markets:", error);
     }
 }
-
-// Export the function to be used in index.js
-module.exports = findMarket;
