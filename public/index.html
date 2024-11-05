@@ -45,7 +45,9 @@
                     throw new Error(`Error fetching markets: ${response.statusText}`);
                 }
 
-                const markets = await response.json();
+                const result = await response.json();
+                const markets = result.data; // Access the array inside the "data" property
+
 
                 // Determine if the query is a TokenID (starts with "0x" and length 66)
                 const isTokenID = query.startsWith("0x") && query.length === 66;
