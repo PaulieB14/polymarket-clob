@@ -1,4 +1,4 @@
-const findMarket = require('./findMarket');
+const { findMarket }= require('./findMarket');
 
 // Example queries
 const questionQuery = "Will Caroline Ellison be federally charged by March 31?";

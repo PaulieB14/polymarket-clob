@@ -34,3 +34,5 @@ async function findMarket(query) {
         console.error("Error fetching markets:", error);
     }
 }
+
+module.exports = { findMarket };
