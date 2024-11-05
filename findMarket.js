@@ -20,17 +20,21 @@ async function findMarket(query) {
         // Determine if the query is a TokenID by its format
         const isTokenID = query.startsWith('0x') && query.length === 66;
 
-        // Search for the market based on either the question or condition_id
-        const market = markets.find(market =>
-            isTokenID ? market.condition_id === query : market.question === query
+        // Search for markets based on a partial match (case-insensitive)
+        const matchingMarkets = markets.filter(market =>
+            isTokenID
+                ? market.condition_id === query
+                : market.question.toLowerCase().includes(query.toLowerCase())
         );
 
-        // Output relevant data if market is found
-        if (market) {
-            console.log("Market found:");
-            console.log("Question:", market.question);
-            console.log("Market ID (TokenID):", market.condition_id);
-            console.log("Market Slug:", market.market_slug);
+        // Output relevant data if markets are found
+        if (matchingMarkets.length > 0) {
+            matchingMarkets.forEach(market => {
+                console.log("Market found:");
+                console.log("Question:", market.question);
+                console.log("Market ID (TokenID):", market.condition_id);
+                console.log("Market Slug:", market.market_slug);
+            });
         } else {
             console.log(`Market not found for ${isTokenID ? "TokenID" : "question"}: ${query}`);
         }

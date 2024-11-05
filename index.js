@@ -1,28 +1,24 @@
-async function findMarket(query) {
+document.getElementById('searchButton').addEventListener('click', async () => {
+    const query = document.getElementById('searchInput').value;
     try {
-        const response = await axios.get('https://clob.polymarket.com/markets');
-        const markets = response.data;
-
-        if (!Array.isArray(markets)) {
-            throw new TypeError("Expected 'markets' to be an array");
-        }
-
-        const isTokenID = query.startsWith('0x') && query.length === 66;
-        const market = markets.find(market =>
-            isTokenID ? market.condition_id === query : market.question === query
-        );
-
-        if (market) {
-            return {
-                question: market.question,
-                condition_id: market.condition_id,
-                market_slug: market.market_slug
-            };
-        } else {
-            return { error: `Market not found for ${isTokenID ? "TokenID" : "question"}: ${query}` };
-        }
+        const result = await findMarket(query);
+        displayMarket(result);
     } catch (error) {
-        console.error("Error fetching markets:", error);
-        throw error;  // Let index.js handle the error response
+        console.error("An error occurred:", error);
+    }
+});
+
+function displayMarket(market) {
+    const container = document.getElementById('results-container');
+    container.innerHTML = ''; // Clear previous results
+
+    if (market.error) {
+        container.innerHTML = `<p>${market.error}</p>`;
+    } else {
+        container.innerHTML = `
+            <h3>${market.question}</h3>
+            <p><strong>Market ID (TokenID):</strong> ${market.condition_id}</p>
+            <p><strong>Market Slug:</strong> ${market.market_slug}</p>
+        `;
     }
 }
