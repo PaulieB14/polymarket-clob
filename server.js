@@ -12,9 +12,12 @@ app.get('/api/markets', async (req, res) => {
     try {
         const response = await axios.get('https://clob.polymarket.com/markets');
 
+        // Log the full response data for debugging
+        console.log("Full response data from Polymarket API:", response.data);
+
         // Check if the data is in the expected format (array)
         if (!response.data || !Array.isArray(response.data)) {
-            console.error("Unexpected data format received from Polymarket API", response.data);
+            console.error("Unexpected data format received from Polymarket API");
             return res.status(500).send("Unexpected data format received from Polymarket API");
         }
 
