@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "version": 2,
     "builds": [
       { "src": "server.js", "use": "@vercel/node" },
@@ -10,3 +11,15 @@
     ]
   }
   
+=======
+  "version": 2,
+  "builds": [
+      { "src": "api/markets.js", "use": "@vercel/node" },
+      { "src": "public/index.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+      { "src": "/api/markets", "dest": "/api/markets.js" },
+      { "src": "/(.*)", "dest": "/public/index.html" }
+  ]
+}
+>>>>>>> 0e8447f (fix)
