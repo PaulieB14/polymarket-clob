@@ -3,91 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket CLOB Search</title>
+    <title>Polymarket CLOB Market Search</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
             max-width: 800px;
             margin: auto;
             padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #searchContainer {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #searchQuery {
+            padding: 10px;
+            width: 70%;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+        }
+        #searchButton {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        #searchButton:hover {
+            background-color: #0056b3;
         }
         #results {
             margin-top: 20px;
         }
         .market {
+            background-color: #fff;
             border: 1px solid #ddd;
-            padding: 10px;
-            margin: 10px 0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .market h2 {
+            font-size: 18px;
+            margin-top: 0;
+        }
+        .market p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
     <h1>Polymarket CLOB Market Search</h1>
-    <input type="text" id="searchQuery" placeholder="Enter Question or TokenID">
-    <button onclick="searchMarket()">Search</button>
-
+    <div id="searchContainer">
+        <input type="text" id="searchQuery" placeholder="Enter part of Market Question or TokenID">
+        <button id="searchButton" onclick="searchMarket()">Search</button>
+    </div>
     <div id="results"></div>
 
     <script>
-        async function searchMarket() {
-            const query = document.getElementById("searchQuery").value.trim();
-            if (!query) {
-                alert("Please enter a search query.");
-                return;
-            }
+async function searchMarket() {
+    const query = document.getElementById("searchQuery").value.trim();
+    if (!query) {
+        alert("Please enter a search query.");
+        return;
+    }
 
-            try {
-                // Fetch markets from your local server
-                const response = await fetch('/api/markets');
-                
-                // Check if the response is okay (status 200)
-                if (!response.ok) {
-                    throw new Error(`Error fetching markets: ${response.statusText}`);
-                }
-
-                const markets = await response.json();
-
-                // Validate that the fetched data is an array
-                if (!Array.isArray(markets)) {
-                    throw new Error("Unexpected data format: Expected an array of markets.");
-                }
-
-                // Determine if the query is a TokenID (starts with "0x" and length 66)
-                const isTokenID = query.startsWith("0x") && query.length === 66;
-
-                // Filter the markets based on the query (case-insensitive)
-                const matchingMarkets = markets.filter(market =>
-                    isTokenID
-                        ? market.condition_id.toLowerCase() === query.toLowerCase()
-                        : market.question.toLowerCase().includes(query.toLowerCase())
-                );
-
-                // Clear previous results
-                const resultsDiv = document.getElementById("results");
-                resultsDiv.innerHTML = '';
-
-                if (matchingMarkets.length > 0) {
-                    // Display the matching markets
-                    matchingMarkets.forEach(market => {
-                        const marketDiv = document.createElement("div");
-                        marketDiv.className = "market";
-                        marketDiv.innerHTML = `
-                            <h2>${market.question}</h2>
-                            <p><strong>Market ID (TokenID):</strong> ${market.condition_id}</p>
-                            <p><strong>Market Slug:</strong> ${market.market_slug}</p>
-                            <p><strong>Description:</strong> ${market.description || 'No description available'}</p>
-                        `;
-                        resultsDiv.appendChild(marketDiv);
-                    });
-                } else {
-                    // Display a message if no market is found
-                    resultsDiv.innerHTML = `<p>No market found for query: "${query}"</p>`;
-                }
-            } catch (error) {
-                console.error("An error occurred:", error);
-                document.getElementById("results").innerHTML = `<p>Error fetching markets: ${error.message}</p>`;
-            }
+    try {
+        const response = await fetch('/api/markets');
+        if (!response.ok) {
+            throw new Error(`Error fetching markets: ${response.statusText}`);
         }
+
+        const result = await response.json();
+        const markets = result.data || result; // Adjust in case the data is nested differently
+
+        if (!Array.isArray(markets)) {
+            throw new Error("Unexpected data format received from Polymarket API");
+        }
+
+        const isTokenID = query.startsWith("0x") && query.length === 66;
+
+        const matchingMarkets = markets.filter(market =>
+            isTokenID
+                ? market.condition_id === query
+                : market.question && market.question.toLowerCase().includes(query.toLowerCase())
+        );
+
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = '';
+
+        if (matchingMarkets.length > 0) {
+            matchingMarkets.forEach(market => {
+                const marketDiv = document.createElement("div");
+                marketDiv.className = "market";
+                marketDiv.innerHTML = `
+                    <h2>${market.question || 'No title available'}</h2>
+                    <p><strong>Market ID (TokenID):</strong> ${market.condition_id || 'N/A'}</p>
+                    <p><strong>Market Slug:</strong> ${market.market_slug || 'N/A'}</p>
+                    <p><strong>Description:</strong> ${market.description || 'No description available'}</p>
+                    <p><strong>End Date:</strong> ${market.end_date_iso || 'N/A'}</p>
+                    <p><strong>Status:</strong> ${market.active ? 'Active' : 'Inactive'}, ${market.closed ? 'Closed' : 'Open'}, ${market.archived ? 'Archived' : 'Live'}</p>
+                    ${market.icon ? `<img src="${market.icon}" alt="Market Icon" width="50">` : ''}
+                `;
+                resultsDiv.appendChild(marketDiv);
+            });
+        } else {
+            resultsDiv.innerHTML = `<p>No market found for query: "${query}"</p>`;
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+        document.getElementById("results").innerHTML = `<p>Error fetching markets: ${error.message}</p>`;
+    }
+}
     </script>
 </body>
 </html>

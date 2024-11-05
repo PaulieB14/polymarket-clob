@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const axios = require('axios');
 const app = express();
@@ -11,21 +10,22 @@ app.use(express.static('public'));
 app.get('/api/markets', async (req, res) => {
     try {
         const response = await axios.get('https://clob.polymarket.com/markets');
-
-        // Log the full response data for debugging
-        console.log("Full response data from Polymarket API:", response.data);
-
-        // Check if the data is in the expected format (array)
-        if (!response.data || !Array.isArray(response.data)) {
-            console.error("Unexpected data format received from Polymarket API");
-            return res.status(500).send("Unexpected data format received from Polymarket API");
+        if (response.data && Array.isArray(response.data.data)) {
+            res.json(response.data.data); // Send the market data array as JSON
+        } else {
+            console.error("Unexpected data format:", response.data);
+            res.status(500).send("Unexpected data format received from Polymarket API");
         }
-
-        // Send the market data as JSON
-        res.json(response.data);
     } catch (error) {
         console.error("Error fetching markets:", error.message);
-        res.status(500).send("Error fetching markets");
+        if (error.response) {
+            // Log detailed error response if available
+            console.error("Status:", error.response.status);
+            console.error("Data:", error.response.data);
+            res.status(500).send("Error fetching markets from Polymarket API");
+        } else {
+            res.status(500).send("Internal Server Error");
+        }
     }
 });
 
