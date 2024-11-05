@@ -1,0 +1,74 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polymarket CLOB Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .market {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Polymarket CLOB Market Search</h1>
+    <input type="text" id="searchQuery" placeholder="Enter Question or TokenID">
+    <button onclick="searchMarket()">Search</button>
+
+    <div id="results"></div>
+
+    <script>
+        async function searchMarket() {
+            const query = document.getElementById("searchQuery").value.trim();
+            if (!query) {
+                alert("Please enter a search query.");
+                return;
+            }
+
+            // Fetch markets from the server
+            const response = await fetch('/api/markets');
+            const markets = await response.json();
+
+            // Determine if the query is a TokenID (starts with "0x" and length 66)
+            const isTokenID = query.startsWith("0x") && query.length === 66;
+
+            // Filter the markets based on the query
+            const market = markets.find(market =>
+                isTokenID ? market.condition_id === query : market.question === query
+            );
+
+            // Clear previous results
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = '';
+
+            if (market) {
+                // Display the market details
+                const marketDiv = document.createElement("div");
+                marketDiv.className = "market";
+                marketDiv.innerHTML = `
+                    <h2>${market.question}</h2>
+                    <p><strong>Market ID (TokenID):</strong> ${market.condition_id}</p>
+                    <p><strong>Market Slug:</strong> ${market.market_slug}</p>
+                    <p><strong>Description:</strong> ${market.description}</p>
+                `;
+                resultsDiv.appendChild(marketDiv);
+            } else {
+                // Display a message if no market is found
+                resultsDiv.innerHTML = `<p>No market found for query: "${query}"</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
