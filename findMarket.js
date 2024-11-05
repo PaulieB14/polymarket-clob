@@ -1,12 +1,12 @@
 const axios = require('axios');
 
-/**
- * Function to find a market based on either a human-readable question or a TokenID/MarketID.
- * @param {string} query - The question (human-readable name) or TokenID/MarketID to search for.
- */
 async function findMarket(query) {
     try {
         const response = await axios.get('https://clob.polymarket.com/markets');
+        
+        // Log the API response to check its structure
+        console.log("API Response:", response.data);
+
         const markets = response.data;
 
         // Check if the query looks like a TokenID (assumes a TokenID is a long hex string)
@@ -30,5 +30,4 @@ async function findMarket(query) {
     }
 }
 
-// Export the function so it can be used in other files
 module.exports = findMarket;
