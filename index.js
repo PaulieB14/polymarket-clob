@@ -1,13 +1,28 @@
-const { findMarket }= require('./findMarket');
+async function findMarket(query) {
+    try {
+        const response = await axios.get('https://clob.polymarket.com/markets');
+        const markets = response.data;
 
-// Example queries
-const questionQuery = "Will Caroline Ellison be federally charged by March 31?";
-const tokenIDQuery = "0x4438202b145817f30fa3ee9ac5ab73a6160ec04ec5918bd843775f3b65b3cb47";
+        if (!Array.isArray(markets)) {
+            throw new TypeError("Expected 'markets' to be an array");
+        }
 
-// Run the function with a question
-console.log("Searching by question:");
-findMarket(questionQuery);
+        const isTokenID = query.startsWith('0x') && query.length === 66;
+        const market = markets.find(market =>
+            isTokenID ? market.condition_id === query : market.question === query
+        );
 
-// Run the function with a TokenID
-console.log("\nSearching by TokenID:");
-findMarket(tokenIDQuery);
+        if (market) {
+            return {
+                question: market.question,
+                condition_id: market.condition_id,
+                market_slug: market.market_slug
+            };
+        } else {
+            return { error: `Market not found for ${isTokenID ? "TokenID" : "question"}: ${query}` };
+        }
+    } catch (error) {
+        console.error("Error fetching markets:", error);
+        throw error;  // Let index.js handle the error response
+    }
+}
