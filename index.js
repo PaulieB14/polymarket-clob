@@ -1,22 +1,14 @@
-const axios = require('axios');
+// Import the findMarket function from findMarket.js
+const findMarket = require('./findMarket');
 
-async function findMarketByQuestion() {
-    try {
-        const response = await axios.get('https://clob.polymarket.com/markets');
-        const markets = response.data;
+// Example queries
+const questionQuery = "Will Caroline Ellison be federally charged by March 31?";
+const tokenIDQuery = "0x4438202b145817f30fa3ee9ac5ab73a6160ec04ec5918bd843775f3b65b3cb47";
 
-        console.log("Total markets fetched:", markets.length);
+// Run the function with a question
+console.log("Searching by question:");
+findMarket(questionQuery);
 
-        // Loop through each market and display relevant information
-        markets.forEach((market) => {
-            console.log("Question:", market.question);
-            console.log("Market ID (TokenID):", market.condition_id);
-            console.log("Market Slug:", market.market_slug);
-            console.log("------");
-        });
-    } catch (error) {
-        console.error("Error fetching markets:", error);
-    }
-}
-
-findMarketByQuestion();
+// Run the function with a TokenID
+console.log("\nSearching by TokenID:");
+findMarket(tokenIDQuery);
