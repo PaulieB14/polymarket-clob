@@ -8,31 +8,30 @@ const passphrase = process.env.POLY_PASSPHRASE;
 const secret = process.env.POLY_SECRET;
 
 // Function to create HMAC signature
-function createSignature(address, timestamp, nonce) {
-    const message = `${address}${timestamp}${nonce}`;
+function createSignature(address, timestamp) {
+    const message = `${address}${timestamp}`;
     return crypto.createHmac('sha256', secret).update(message).digest('hex');
 }
 
 // Example API call function
 async function getApiKeys() {
-    const timestamp = Math.floor(Date.now() / 1000); // Current UNIX timestamp
-    const nonce = 0; // Use a nonce, it can be a static value for testing
-    const signature = createSignature(address, timestamp, nonce);
-
     try {
-        const response = await axios.get('https://clob.polymarket.com/auth/api-keys', {
+        const timestamp = Math.floor(Date.now() / 1000); // UNIX timestamp in seconds
+        const signature = createSignature(address, timestamp);
+
+        const response = await axios.get('https://clob.polymarket.com/markets', {
             headers: {
                 'POLY_ADDRESS': address,
                 'POLY_API_KEY': apiKey,
-                'POLY_SIGNATURE': signature,
-                'POLY_TIMESTAMP': timestamp,
-                'POLY_NONCE': nonce,
                 'POLY_PASSPHRASE': passphrase,
+                'POLY_SIGNATURE': signature,
+                'POLY_TIMESTAMP': timestamp
             }
         });
-        console.log('API Keys:', response.data); // Process the API keys
+
+        console.log("API keys fetched successfully:", response.data);
     } catch (error) {
-        console.error('Error fetching API keys:', error.response ? error.response.data : error.message);
+        console.error("Error fetching API keys:", error.response ? error.response.data : error.message);
     }
 }
 
