@@ -1,5 +1,7 @@
-const axios = require('axios');
-require('dotenv').config(); // Load environment variables from .env file
+import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Load environment variables from .env file
 
 const address = process.env.POLY_ADDRESS;
 const apiKey = process.env.POLY_API_KEY;
@@ -21,7 +23,6 @@ export default async function handler(req, res) {
                 'POLY_PASSPHRASE': passphrase,
                 'POLY_SECRET': secret, // Include the secret if required
                 'POLY_TIMESTAMP': timestamp,
-                // Add other headers if necessary
             }
         });
 

@@ -17,5 +17,6 @@
     "dotenv": "^16.4.5",
     "ethers": "^6.13.4"
   },
+  "devDependencies": {},
   "description": ""
 }
