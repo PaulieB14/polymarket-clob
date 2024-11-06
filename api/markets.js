@@ -12,11 +12,15 @@ export default async function handler(req, res) {
     }
 
     try {
+        const timestamp = new Date().toISOString(); // Define the timestamp
+
         const response = await axios.get('https://clob.polymarket.com/markets', {
             headers: {
                 'POLY_ADDRESS': address,
                 'POLY_API_KEY': apiKey,
                 'POLY_PASSPHRASE': passphrase,
+                'POLY_SECRET': secret, // Include the secret if required
+                'POLY_TIMESTAMP': timestamp,
                 // Add other headers if necessary
             }
         });
